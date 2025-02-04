@@ -35,7 +35,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   // Called whenever a button is pressed to update the display
   void _onButtonPressed(String value) {
     setState(() {
-      // If we already ended with "=", start fresh on next numeric/operator input:
+      // If the expression already ended with '=', start fresh on next numeric/operator input:
       if (_expression.contains('=') && _isNumericOrOperator(value)) {
         _expression = '';
       }
@@ -45,7 +45,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   // Check if the value is a digit/operator/decimal
   bool _isNumericOrOperator(String value) {
-    final validChars = RegExp(r'^[0-9+\-*/.]+$');
+    final validChars = RegExp(r'^[0-9+\-*/.^%]+$');
     return validChars.hasMatch(value);
   }
 
@@ -87,7 +87,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Jake's Calculator"), // <— Update with your name
+        title: const Text("Your Name's Calculator"), // <— Update with your name
         centerTitle: true,
       ),
       backgroundColor: Colors.grey[200],
@@ -114,11 +114,14 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               ),
             ),
 
-            // Calculator buttons in rows
+            // Existing calculator rows
             _buildButtonRow(['7', '8', '9', '÷']),
             _buildButtonRow(['4', '5', '6', '×']),
             _buildButtonRow(['1', '2', '3', '-']),
             _buildButtonRow(['0', '.', '=', '+']),
+
+            // NEW: Extra operations row
+            _buildButtonRow(['(', ')', 'x²', '%']),
 
             // Clear row
             Row(
@@ -157,9 +160,14 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   Widget _buildCalcButton(String label) {
     return InkWell(
       onTap: () {
+        // We can handle special cases here
         switch (label) {
           case '=':
             _calculateResult();
+            break;
+          // If user taps 'x²', we actually append '^2' to the expression
+          case 'x²':
+            _onButtonPressed('^2');
             break;
           default:
             _onButtonPressed(label);
@@ -188,7 +196,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   // Decide button color based on whether it’s an operator
   Color _getButtonColor(String label) {
-    if (label == '=' || _isOperator(label)) {
+    if (label == '=' || _isOperator(label) || label == 'x²') {
       return Colors.blue;
     }
     if (label == 'C') {
@@ -198,6 +206,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   bool _isOperator(String label) {
-    return ['+', '-', '×', '÷'].contains(label);
+    return ['+', '-', '×', '÷', '%'].contains(label);
   }
 }
